@@ -4,14 +4,16 @@ import path from 'path';
 import {
   assertGitClean,
   decode,
-  parseListFile,
+  noDupeList,
+  readList,
   resolveWikiLink,
-  stringifyDate
+  stringifyDate,
+  writeList,
 } from '../utils/index.js';
 
 $.verbose = false;
 process.chdir('E:\\SyncThing\\obsidian');
-await assertGitClean();
+await assertGitClean({ prompt: true });
 
 const listFile = './David Gabison/Readwise/__Fil de lecture__.md';
 const list = await readList(listFile);
