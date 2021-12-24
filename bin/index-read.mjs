@@ -20,6 +20,7 @@ const list = await readList(listFile);
 
 for (const line of list) {
   if (line.done && 'file' in line) {
+    console.log(`index ${chalk.yellow(line.href)}`);
     await $`git add -- ${line.href}`;
   }
 }
