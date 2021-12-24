@@ -7,7 +7,7 @@ import {
 
 $.verbose = false;
 process.chdir('E:\\SyncThing\\obsidian');
-await assertGitClean();
+await assertGitClean({ prompt: true });
 
 const listFile = './David Gabison/Readwise/__Fil de lecture__.md';
 const listDir = path.dirname(listFile);
