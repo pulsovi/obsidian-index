@@ -5,10 +5,14 @@ import { assertGitClean, decode, resolveWikiLink } from '../utils/index.js';
 
 $.verbose = false;
 process.chdir('E:\\SyncThing\\obsidian');
-await assertGitClean();
+const choice = await assertGitClean({
+  prompt: true, choices: { i: 'indexed - process only new indexed files'}
+});
 
-console.log(`${chalk.green('git')} ls-files --cached`);
-const indexedFiles = (await $`git ls-files --cached`).stdout
+const command = choice === 'i' ? 'diff --name-only' : 'ls-files';
+const indexedFiles = (await $`git ${
+  choice === 'i' ? 'diff' : 'ls-files'} ${
+  choice === 'i' ? '--name-only' : ''} --cached`).stdout
   .split('\n')
   .map(filename => decode(filename).replace(/^"(.*)"$/u, '$1'));
 
