@@ -23,12 +23,13 @@ const modifiedFiles = (await $`git status --porcelain`).stdout
 
 for (const { filepath } of modifiedFiles) {
   if (filepath.startsWith('David Gabison/')) continue;
+  if (list.some(line => ('href' in line) && line.href === filepath)) continue;
   const name = path.basename(filepath).replace(/\.md$/u, '');
   const link = `[[${name}]]`;
   const resolved = await resolveWikiLink('.', listDir, link);
   if (!resolved) throw new Error(`Impossible de trouver le fichier pointé par le lien "${link}"`);
   const { href } = resolved;
-  console.log(`add ${chalk.yellow(href)}`);
+  console.log(`add ${chalk.yellow(filepath)}`);
   if (href !== filepath)
     list.push({ done: false, href: filepath, text: `- [ ] [[${filepath}|${name}]]` });
   else
