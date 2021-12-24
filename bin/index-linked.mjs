@@ -10,15 +10,23 @@ const choice = await assertGitClean({
 });
 
 const command = choice === 'i' ? 'diff --name-only' : 'ls-files';
-const indexedFiles = (await $`git ${
-  choice === 'i' ? 'diff' : 'ls-files'} ${
-  choice === 'i' ? '--name-only' : ''} --cached`).stdout
+const indexedFiles = (await $`git ls-files --cached`).stdout
   .split('\n')
   .map(filename => decode(filename).replace(/^"(.*)"$/u, '$1'));
 
+const sources = (
+  choice === 'i'
+  ?
+  (await $`git diff --cached --name-only`).stdout.split('\n')
+  .map(filename => decode(filename).replace(/^"(.*)"$/u, '$1'))
+  :
+  indexedFiles
+).filter(filename => filename.endsWith('.md'))
+
+
 const links = [];
 const linkRE = /\[\[[^\]]*\]\]/gu
-for (const source of indexedFiles.filter(file => file.endsWith('.md'))) {
+for (const source of sources) {
   const dirname = path.dirname(source);
   console.log(`${chalk.green('git')} show :${source}`);
   const content = (await $`git show :${source}`).stdout;
