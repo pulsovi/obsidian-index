@@ -1,0 +1,24 @@
+{
+  "name": "obsidian-index",
+  "version": "0.1.0",
+  "description": "automatic indexes files linked by indexed files",
+  "main": "index.js",
+  "repository": "git@github.com:pulsovi/obsidian-index.git",
+  "author": "David GABISON",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "readdirp": "^3.6.0",
+    "zx": "^4.2.0"
+  },
+  "packageManager": "yarn@3.1.1",
+  "devDependencies": {
+    "typescript": "^4.5.4"
+  },
+  "scripts": {
+    "index-linked": "zx bin/index-linked.mjs",
+    "index-read": "zx bin/index-read.mjs",
+    "list-modified": "zx bin/list-modified.mjs"
+  },
+  "type": "module"
+}
