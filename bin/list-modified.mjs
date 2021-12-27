@@ -19,7 +19,7 @@ const modifiedFiles = (await $`git status --porcelain`).stdout
     const filepath = decode(line.slice(3).replace(/^"(.*)"$/u, '$1'));
     return { status, filepath };
   })
-  .filter(file => file.status === ' M');
+  .filter(file => file.status.slice(-1) === 'M');
 
 for (const { filepath } of modifiedFiles) {
   if (filepath.startsWith('David Gabison/')) continue;
