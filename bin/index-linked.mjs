@@ -35,7 +35,10 @@ for (const source of sources) {
   if (!matchs) continue;
   for (const match of matchs) {
     const resolved = await resolveLink('.', dirname, match);
-    if (resolved) links.push({ ...resolved, source });
+    let link = null;
+    if (Array.isArray(resolved)) link = resolved[0];
+    else if (resolved) link = resolved;
+    if (link && 'file' in link) links.push({ ...link, source });
   }
 }
 links.sort((a, b) => a.file.path.localeCompare(b.file.path, 'fr'));

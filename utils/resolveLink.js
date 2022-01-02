@@ -54,7 +54,8 @@ export async function resolveLink (root, from, text) {
 
   if (filtered.length === 1)
     return { alias, anchor, file: filtered[0], href: fileToHref(filtered[0]), title };
-  console.log('more than one solution:', { alias, anchor, filtered, root, from, text, title }); process.exit();
+  console.log('more than one solution:', { alias, anchor, filtered, root, from, text, title });
+  return filtered.map(file => ({ alias, anchor, file, href: fileToHref(file), title }));
 }
 
 function fileToHref (file) {
