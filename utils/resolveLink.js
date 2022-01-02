@@ -5,7 +5,22 @@ import readdirp from 'readdirp';
 const markdownLinkBrackedRE = /(?<!\\)\[(?<alias>(?:[^\\\]\|]|\\\[|\\\]|\\\|)*)\]\(<(?<href>[^\)#>"]*)(?:#(?<anchor>[^"\)>]*))?>(?: "(?<title>[^"]*)")?\)/u;
 const markdownLinkRE = /(?<!\\)\[(?<alias>(?:[^\\\]\|]|\\\[|\\\]|\\\|)*)\]\((?<href>[^\)#"]*)(?:#(?<anchor>[^"\)]*))?(?: "(?<title>[^"]*)")?\)/u;
 const wikiLinkRE = /(?<!\\)\[\[(?<href>[^\|#\]]*)(?:#(?<anchor>[^\|\]]*))?(?:\|(?<alias>[^\]]*))?\]\]/u
+const linksRE = [markdownLinkBrackedRE, markdownLinkRE, wikiLinkRE].map(re => new RegExp(re, 'gu'));
 const cache = {};
+
+export function getLinks(text) {
+  let left = text;
+  const links = [];
+  const matches = {};
+  for (const re of linksRE) {
+    const matchs = text.match(re);
+    if (matchs) for (const match of matchs) {
+      links.push(match);
+      left = left.replace(match, '');
+    }
+  }
+  return links;
+}
 
 export function getLink(text) {
   if (markdownLinkBrackedRE.test(text)) return markdownLinkBrackedRE.exec(text).groups;

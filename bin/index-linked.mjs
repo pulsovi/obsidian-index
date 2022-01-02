@@ -1,7 +1,7 @@
 #!/usr/bin/env zx
 import path from 'path';
 
-import { assertGitClean, decode, resolveLink } from '../utils/index.js';
+import { assertGitClean, decode, getLinks, resolveLink } from '../utils/index.js';
 
 $.verbose = false;
 process.chdir('E:\\SyncThing\\obsidian');
@@ -25,12 +25,11 @@ const sources = (
 
 
 const links = [];
-const linkRE = /\[\[[^\]]*\]\]/gu
 for (const source of sources) {
   const dirname = path.dirname(source);
   console.log(`${chalk.green('git')} show :${source}`);
   const content = (await $`git show :${source}`).stdout;
-  const matchs = content.match(linkRE);
+  const matchs = getLinks(content);
 
   if (!matchs) continue;
   for (const match of matchs) {
