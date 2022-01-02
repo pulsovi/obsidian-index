@@ -21,9 +21,20 @@ const modifiedFiles = (await $`git status --porcelain`).stdout
   })
   .filter(file => file.status.slice(-1) === 'M');
 
-for (const { filepath } of modifiedFiles) {
-  if (filepath.startsWith('David Gabison/')) continue;
-  if (list.some(line => ('href' in line) && line.href === filepath)) continue;
+const filesToAdd = modifiedFiles.filter(file => {
+  const { filepath } = file;
+  if (filepath.startsWith('David Gabison/')) return false;
+  if (!filepath.endsWith('.md')) return false;
+  if (list.some(line => ('href' in line) && line.href === filepath)) return false;
+  return true;
+})
+
+if (!filesToAdd.length) {
+  console.log('No file to add, exit.');
+  process.exit();
+}
+
+for (const { filepath } of filesToAdd) {
   const name = path.basename(filepath).replace(/\.md$/u, '');
   const link = `[[${name}]]`;
   const resolved = await resolveLink('.', listDir, link);

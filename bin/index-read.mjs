@@ -17,6 +17,11 @@ await assertGitClean({ prompt: true });
 const listFile = './David Gabison/Readwise/__Fil de lecture__.md';
 const list = await readList(listFile);
 
+if (!list.some(line => line.done)) {
+  console.log('No done line, exit.');
+  process.exit();
+}
+
 for (const line of list) {
   if (line.done && 'file' in line) {
     console.log(`index ${chalk.yellow(line.href)}`);

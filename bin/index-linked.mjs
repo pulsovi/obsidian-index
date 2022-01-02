@@ -43,7 +43,7 @@ for (const source of sources) {
 links.sort((a, b) => a.file.path.localeCompare(b.file.path, 'fr'));
 
 if (!links.length) {
-  console.log('no file to add');
+  console.log('No file to add, exit.');
 }
 
 const uniqueLinks = {};
