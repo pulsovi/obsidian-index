@@ -1,7 +1,7 @@
 import path from 'path';
 
 import stringifyDate from './stringifyDate.js';
-import { resolveWikiLink, resolveMarkdownLink } from './resolveLink.js';
+import { resolveLink } from './resolveLink.js';
 
 export async function readList (listFile) {
   const listDir = path.dirname(listFile);
@@ -11,20 +11,10 @@ export async function readList (listFile) {
     const done = text.startsWith('- [x] ');
     const isTodo = text.startsWith('- [');
     if (!isTodo) return { done, text };
-    const link = text.slice(6);
-    const isWikiLink = (/^\[\[.*\]\]$/u).test(link);
-    if (!isWikiLink) {
-      const markdownLink = resolveMarkdownLink(link);
-      if (markdownLink) {
-        const { alias, href, title } = markdownLink;
-        return { alias, href, done, text, title };
-      }
-      return { done, text };
-    }
-    const resolved = await resolveWikiLink('.', listDir, link);
-    if (!resolved) throw new Error(`Impossible de trouver le fichier pointé par le lien "${link}"`);
-    const { alias, anchor, file, href, name } = resolved;
-    return { alias, anchor, done, file, href, link, name, text };
+    const resolved = await resolveLink('.', listDir, text);
+    if (!resolved) throw new Error(`Impossible de trouver le lien pointé par la ligne "${text}"`);
+    const { alias, anchor, file, href, title } = resolved;
+    return { alias, anchor, done, file, href, text, title };
   }));
   return list;
 }

@@ -2,39 +2,47 @@ import path from 'path';
 
 import readdirp from 'readdirp';
 
-const wikiLinkRE = /^\[\[(?<name>[^\|#\]]*)(?:#(?<anchor>[^\|\]]*))?(?:\|(?<alias>[^\]]*))?\]\]$/u
-const markdownLinkRE = /^\[(?<alias>[^\]]*)\]\((?<href>[^"\)]*)(?:"(?<title>[^"\)]*)")?\)$/u;
+const markdownLinkBrackedRE = /(?<!\\)\[(?<alias>(?:[^\\\]\|]|\\\[|\\\]|\\\|)*)\]\(<(?<href>[^\)#>"]*)(?:#(?<anchor>[^"\)>]*))?>(?: "(?<title>[^"]*)")?\)/u;
+const markdownLinkRE = /(?<!\\)\[(?<alias>(?:[^\\\]\|]|\\\[|\\\]|\\\|)*)\]\((?<href>[^\)#"]*)(?:#(?<anchor>[^"\)]*))?(?: "(?<title>[^"]*)")?\)/u;
+const wikiLinkRE = /(?<!\\)\[\[(?<href>[^\|#\]]*)(?:#(?<anchor>[^\|\]]*))?(?:\|(?<alias>[^\]]*))?\]\]/u
 const cache = {};
 
-export async function resolveWikiLink (root, ref, link) {
-  if (!isWikiLink(link))
-    throw new Error(`Le wikilink "${link}" semble être mal formaté`);
-  const { name, anchor, alias } = link.match(wikiLinkRE).groups;
+export function getLink(text) {
+  if (markdownLinkBrackedRE.test(text)) return markdownLinkBrackedRE.exec(text).groups;
+  if (markdownLinkRE.test(text)) return markdownLinkRE.exec(text).groups;
+  if (wikiLinkRE.test(text)) return wikiLinkRE.exec(text).groups;
+  return null;
+}
+
+export async function resolveLink (root, from, text) {
+  const link = getLink(text);
+  if (!link) throw new Error(`Aucun lien trouvé dans "${text}"`);
+  const { href, anchor, alias, title } = link;
   const tree = await getTree(root);
   const candidates = tree.filter(entry => {
-    const href = fileToHref(entry).toLowerCase();
+    const entryHref = fileToHref(entry).toLowerCase();
     const basename = entry.basename.toLowerCase();
-    const fullname = (name.endsWith('.md') ? name : `${name}.md`).toLowerCase();
+    const fullname = (href.endsWith('.md') ? href : `${href}.md`).toLowerCase();
     return (
       basename === fullname ||
-      basename === name.toLowerCase() ||
+      basename === href.toLowerCase() ||
       (
-        href.endsWith(fullname) &&
+        entryHref.endsWith(fullname) &&
         (
-          href.slice(-(fullname.length + 1)).charAt() === '/' ||
-          href.length === fullname.length
+          entryHref.slice(-(fullname.length + 1)).charAt() === '/' ||
+          entryHref.length === fullname.length
         )
       )
     );
   });
-  if (candidates.length === 0) return null;
+  if (candidates.length === 0) return { alias, anchor, href, title };;
   if (candidates.length === 1)
-    return { alias, anchor, file: candidates[0], href: fileToHref(candidates[0]), link, name };
+    return { alias, anchor, file: candidates[0], href: fileToHref(candidates[0]), title };
 
   // more than one solution
   let minDeep = Infinity;
   const filtered = candidates.map(candidate => {
-    const relative = path.relative(ref, candidate.path);
+    const relative = path.relative(from, candidate.path);
     const deep = relative.split(path.sep).filter(part => part == '..').length;
     minDeep = Math.min(minDeep, deep);
     return {
@@ -45,8 +53,8 @@ export async function resolveWikiLink (root, ref, link) {
   }).filter(candidate => candidate.deep === minDeep);
 
   if (filtered.length === 1)
-    return { file: filtered[0], href: fileToHref(filtered[0]), link, name, anchor, alias };
-  console.log('more than one solution:', { name, anchor, alias, filtered, root, ref, link }); process.exit();
+    return { alias, anchor, file: filtered[0], href: fileToHref(filtered[0]), title };
+  console.log('more than one solution:', { alias, anchor, filtered, root, from, text, title }); process.exit();
 }
 
 function fileToHref (file) {

@@ -1,7 +1,7 @@
 #!/usr/bin/env zx
 import path from 'path';
 
-import { assertGitClean, decode, resolveWikiLink } from '../utils/index.js';
+import { assertGitClean, decode, resolveLink } from '../utils/index.js';
 
 $.verbose = false;
 process.chdir('E:\\SyncThing\\obsidian');
@@ -34,7 +34,7 @@ for (const source of sources) {
 
   if (!matchs) continue;
   for (const match of matchs) {
-    const resolved = await resolveWikiLink('.', dirname, match);
+    const resolved = await resolveLink('.', dirname, match);
     if (resolved) links.push({ ...resolved, source });
   }
 }

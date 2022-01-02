@@ -6,7 +6,6 @@ import {
   decode,
   noDupeList,
   readList,
-  resolveWikiLink,
   stringifyDate,
   writeList,
 } from '../utils/index.js';

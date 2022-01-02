@@ -2,7 +2,7 @@
 import path from 'path';
 
 import {
-  assertGitClean, decode, noDupeList, readList, resolveWikiLink, writeList
+  assertGitClean, decode, noDupeList, readList, resolveLink, writeList
 } from '../utils/index.js';
 
 $.verbose = false;
@@ -26,7 +26,7 @@ for (const { filepath } of modifiedFiles) {
   if (list.some(line => ('href' in line) && line.href === filepath)) continue;
   const name = path.basename(filepath).replace(/\.md$/u, '');
   const link = `[[${name}]]`;
-  const resolved = await resolveWikiLink('.', listDir, link);
+  const resolved = await resolveLink('.', listDir, link);
   if (!resolved) throw new Error(`Impossible de trouver le fichier pointé par le lien "${link}"`);
   const { href } = resolved;
   console.log(`add ${chalk.yellow(filepath)}`);
