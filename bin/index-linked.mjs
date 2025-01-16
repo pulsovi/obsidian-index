@@ -6,7 +6,7 @@ import { assertGitClean, decode, getLinks, resolveLink } from '../utils/index.js
 $.verbose = false;
 process.chdir('E:\\SyncThing\\obsidian');
 const choice = await assertGitClean({
-  prompt: true, choices: { i: 'indexed - process only new indexed files'}
+  prompt: true, choices: { i: 'indexed - process only new indexed files' }
 });
 
 const command = choice === 'i' ? 'diff --name-only' : 'ls-files';

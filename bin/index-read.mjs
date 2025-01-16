@@ -14,7 +14,7 @@ $.verbose = false;
 process.chdir('E:\\SyncThing\\obsidian');
 await assertGitClean({ prompt: true });
 
-const listFile = './David Gabison/Readwise/__Fil de lecture__.md';
+const listFile = './__Fil de lecture__.md';
 const list = await readList(listFile);
 
 if (!list.some(line => line.done)) {

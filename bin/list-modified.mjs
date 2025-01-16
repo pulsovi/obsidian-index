@@ -9,7 +9,7 @@ $.verbose = false;
 process.chdir('E:\\SyncThing\\obsidian');
 await assertGitClean({ prompt: true });
 
-const listFile = './David Gabison/Readwise/__Fil de lecture__.md';
+const listFile = './__Fil de lecture__.md';
 const listDir = path.dirname(listFile);
 const list = await readList(listFile);
 const modifiedFiles = (await $`git status --porcelain`).stdout
