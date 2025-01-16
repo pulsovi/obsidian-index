@@ -2,8 +2,8 @@ import path from 'path';
 
 import readdirp from 'readdirp';
 
-const markdownLinkBrackedRE = /(?<!\\)\[(?<alias>(?:[^\\\]\|]|\\\[|\\\]|\\\|)*)\]\(<(?<href>[^\)#>"]*)(?:#(?<anchor>[^"\)>]*))?>(?: "(?<title>[^"]*)")?\)/u;
-const markdownLinkRE = /(?<!\\)\[(?<alias>(?:[^\\\]\|]|\\\[|\\\]|\\\|)*)\]\((?<href>[^\)#"]*)(?:#(?<anchor>[^"\)]*))?(?: "(?<title>[^"]*)")?\)/u;
+const markdownLinkBrackedRE = /(?<!\\)\[(?<alias>(?:[^\\\]\|]|\\\[|\\\]|\\\|)*)\]\(<(?<href>[^#>]*)(?:#(?<anchor>[^>]*))?>(?: "(?<title>[^"]*)")?\)/u;
+const markdownLinkRE = /(?<!\\)\[(?<alias>(?:[^\\\]\|]|\\\[|\\\]|\\\|)*)\]\((?<href>(?:[^\(\)#"]|\(\S*?\))*)(?:#(?<anchor>[^"\)]*))?(?: "(?<title>[^"]*)")?\)/u;
 const wikiLinkRE = /(?<!\\)\[\[(?<href>[^\|#\]]*)(?:#(?<anchor>[^\|\]]*))?(?:\|(?<alias>[^\]]*))?\]\]/u
 const linksRE = [markdownLinkBrackedRE, markdownLinkRE, wikiLinkRE].map(re => new RegExp(re, 'gu'));
 const cache = {};
@@ -22,10 +22,26 @@ export function getLinks(text) {
   return links;
 }
 
-export function getLink(text) {
-  if (markdownLinkBrackedRE.test(text)) return markdownLinkBrackedRE.exec(text).groups;
-  if (markdownLinkRE.test(text)) return markdownLinkRE.exec(text).groups;
-  if (wikiLinkRE.test(text)) return wikiLinkRE.exec(text).groups;
+export function getLink(text, base) {
+  let retval = null;
+  if (markdownLinkBrackedRE.test(text)) retval = markdownLinkBrackedRE.exec(text).groups;
+  else if (markdownLinkRE.test(text)) retval = markdownLinkRE.exec(text).groups;
+  else if (wikiLinkRE.test(text)) retval = wikiLinkRE.exec(text).groups;
+  if (retval) {
+    if(!retval.href) {
+      if (!base)
+        throw new Error(`Unable to return any href, no link, nor base parameter provide it, base parameter is "${base}", link text is "${text}".`);
+      retval.href = base;
+    }
+    return retval;
+  }
+  console.log({
+    markdownLinkRE,
+    markdownLinkBrackedRE,
+    wikiLinkRE,
+    text,
+    base,
+  })
   return null;
 }
 
